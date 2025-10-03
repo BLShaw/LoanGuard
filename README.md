@@ -44,6 +44,7 @@ Shows overall metrics like:
 - High Risk Borrowers 
 - Recovery Rate
 - Average Missed Payments
+<img width="1479" height="176" alt="image" src="https://github.com/user-attachments/assets/9a8bb23c-c615-4f8b-9d87-c522179c2afd" />
 
 ### Borrower Segments
 Displays borrower categorization using K-Means clustering:
@@ -51,21 +52,29 @@ Displays borrower categorization using K-Means clustering:
 - High Income, Low Default Risk
 - Moderate Income, Medium Risk
 - High Loan, Higher Default Risk
+<img width="1775" height="352" alt="image" src="https://github.com/user-attachments/assets/12842e0c-c5ea-4481-8d86-32e7eff415a7" />
+
 
 ### Risk Prediction Model
 Shows the performance of the Random Forest risk prediction model with:
 - Training and test accuracy metrics
 - Recovery strategy distribution
 - Sample risk predictions
+<img width="1026" height="81" alt="image" src="https://github.com/user-attachments/assets/39768d03-8b0e-461a-a000-c59ec68bc0b5" />
+
 
 ### Data Visualizations
 Interactive charts including:
 - Loan Amount Distribution
 - Payment History vs Recovery Status
 - Borrower Segments Visualization
+<img width="1821" height="490" alt="image" src="https://github.com/user-attachments/assets/311deda6-cc41-4c48-8ae9-c8c58f79dc14" />
+<img width="1766" height="550" alt="image" src="https://github.com/user-attachments/assets/4396772b-2e46-40e8-a28e-59783663ac67" />
 
 ### Individual Borrower Lookup
 Search for specific borrowers and view their complete profile including risk assessment.
+<img width="1774" height="508" alt="image" src="https://github.com/user-attachments/assets/c3b4543d-556d-4b7c-bcc2-d165c2cf02f7" />
+
 
 ## Technology Stack
 
