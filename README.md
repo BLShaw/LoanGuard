@@ -1,124 +1,106 @@
-# LoanGuard: A Smart Loan Recovery System
+# LoanGuard: Banking Intelligence Dashboard
 
-![Python](https://img.shields.io/badge/python-3.7%2B-blue)
+![Python](https://img.shields.io/badge/python-3.9%2B-blue)
+![Streamlit](https://img.shields.io/badge/streamlit-1.24.0-FF4B4B)
+![Plotly](https://img.shields.io/badge/plotly-5.0-3F4F75)
+![SHAP](https://img.shields.io/badge/XAI-SHAP-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Streamlit](https://img.shields.io/badge/streamlit-1.24.0-yellow)
 
-A machine learning-powered system that uses historical loan repayment data, borrower profiles, and payment behaviors to optimize collection efforts, minimize recovery costs, and maximize loan repayments.
+**LoanGuard** is an enterprise-grade banking analytics platform designed to optimize loan recovery strategies. It combines machine learning (Random Forest) with Explainable AI (SHAP) to categorize borrowers, predict default risks, and generate procedural interaction histories for a comprehensive "Customer 360" view.
 
-## Features
+## 🚀 Key Features
 
-- **Data Visualization**: Interactive charts showing loan amount distribution, payment history analysis, and recovery status
-- **Borrower Segmentation**: K-Means clustering to group borrowers into risk segments
-- **Risk Prediction**: Random Forest model to identify high-risk borrowers
-- **Recovery Strategies**: Dynamic strategy assignment based on risk scores
-- **Individual Borrower Lookup**: Search and view detailed information for specific borrowers
-- **Professional Dashboard**: Clean, responsive interface with KPIs and visualizations
+*   **🏦 Banking-Grade UI/UX**: A responsive, theme-aware dashboard (Dark/Light mode) designed for financial professionals.
+*   **🧠 Explainable AI (XAI)**: Integrated **SHAP (SHapley Additive exPlanations)** analysis to explain *why* a specific risk score was assigned (Regulatory Compliance).
+*   **📊 Advanced Visualization**: 
+    *   **Sunburst Charts** for hierarchical portfolio exposure.
+    *   **Parallel Categories** diagrams to trace borrower journeys.
+    *   **Correlation Heatmaps** for statistical factor analysis.
+*   **📖 Procedural Story Engine**: Generates dynamic, realistic chronological activity logs (calls, legal notices, EMI bounces) for every borrower based on their risk profile.
+*   **🎯 Risk Segmentation**: Uses K-Means clustering and predictive modeling to group borrowers into actionable risk tiers.
 
-## Quick Start
+## 🛠️ Technology Stack
+
+- **Frontend**: Streamlit (Modular UI Architecture)
+- **Data Processing**: Pandas, NumPy
+- **Machine Learning**: Scikit-learn (Random Forest, K-Means)
+- **Explainability**: SHAP (Shapley Values)
+- **Visualization**: Plotly Express & Graph Objects
+
+## 📂 Project Structure
+
+The project follows a modular, production-ready directory structure:
+
+```
+loanguard/
+├── app.py                  # Main Application Entry Point (Router)
+├── config/                 # Centralized Configuration & Settings
+├── data/                   # Datasets (loan-recovery.csv)
+├── models/                 # Trained Model Artifacts (.joblib)
+├── notebooks/              # Jupyter Notebooks for Analysis
+├── scripts/                # Utility & Training Scripts
+├── src/                    # Source Code
+│   ├── ui/                 # UI Modules (Dashboard, Portfolio, etc.)
+│   ├── features.py         # Feature Engineering Logic
+│   ├── model.py            # ML Model Wrappers
+│   └── utils.py            # Helper Functions & Story Engine
+└── tests/                  # Unit Tests
+```
+
+## ⚡ Quick Start
 
 ### Prerequisites
-- Python 3.7 or higher
+- Python 3.8 or higher
 
 ### Installation
-1. Clone the repository
-   ```bash
-   git clone https://github.com/BLShaw/LoanGuard
-   ```
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Run the Streamlit app:
-   ```bash
-   streamlit run app.py
-   ```
 
-## Dashboard Sections
+1.  **Clone the repository**
+    ```bash
+    git clone https://github.com/BLShaw/LoanGuard
+    cd LoanGuard
+    ```
 
-The application provides an interactive dashboard with the following sections:
+2.  **Install dependencies**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-### Key Performance Indicators
-Shows overall metrics like:
-- Total Borrowers
-- High Risk Borrowers 
-- Recovery Rate
-- Average Missed Payments
-<img width="1479" height="176" alt="image" src="https://github.com/user-attachments/assets/9a8bb23c-c615-4f8b-9d87-c522179c2afd" />
+3.  **Train the Models**
+    Before running the dashboard, you must generate the risk and segmentation models.
+    ```bash
+    python scripts/train_model.py
+    ```
 
-### Borrower Segments
-Displays borrower categorization using K-Means clustering:
-- Moderate Income, High Loan Burden
-- High Income, Low Default Risk
-- Moderate Income, Medium Risk
-- High Loan, Higher Default Risk
-<img width="1775" height="352" alt="image" src="https://github.com/user-attachments/assets/12842e0c-c5ea-4481-8d86-32e7eff415a7" />
+4.  **Run the Dashboard**
+    ```bash
+    streamlit run app.py
+    ```
 
+## 🖥️ Dashboard Views
 
-### Risk Prediction Model
-Shows the performance of the Random Forest risk prediction model with:
-- Training and test accuracy metrics
-- Recovery strategy distribution
-- Sample risk predictions
-<img width="1026" height="81" alt="image" src="https://github.com/user-attachments/assets/39768d03-8b0e-461a-a000-c59ec68bc0b5" />
+### 1. Executive Dashboard
+Real-time overview of portfolio health, recovery rates, and exposure using Sunburst charts.
 
+### 2. Portfolio Management
+A filterable, high-density view of the loan book with "Borrower Journey" flow diagrams (Parallel Categories).
 
-### Data Visualizations
-Interactive charts including:
-- Loan Amount Distribution
-- Payment History vs Recovery Status
-- Borrower Segments Visualization
-<img width="1821" height="490" alt="image" src="https://github.com/user-attachments/assets/311deda6-cc41-4c48-8ae9-c8c58f79dc14" />
-<img width="1766" height="550" alt="image" src="https://github.com/user-attachments/assets/4396772b-2e46-40e8-a28e-59783663ac67" />
+### 3. Risk Analysis Engine
+Deep dive into model performance, feature correlations, and statistical risk distribution.
 
-### Individual Borrower Lookup
-Search for specific borrowers and view their complete profile including risk assessment.
-<img width="1774" height="508" alt="image" src="https://github.com/user-attachments/assets/c3b4543d-556d-4b7c-bcc2-d165c2cf02f7" />
+### 4. Customer 360
+A detailed single-borrower view featuring:
+*   **Risk Speedometer**: Gauge chart for instant risk assessment.
+*   **XAI Analysis**: "Why this Score?" chart showing top positive/negative factors.
+*   **Activity Log**: Dynamically generated history of interactions and payments.
 
+## 🤝 Contributing
 
-## Technology Stack
+1.  Fork the repository
+2.  Create a feature branch (`git checkout -b feature/NewFeature`)
+3.  Commit your changes (`git commit -m 'Add some New Feature'`)
+4.  Push to the branch (`git push origin feature/NewFeature`)
+5.  Open a Pull Request
 
-- **Backend**: Python 3.7+
-- **Frontend**: Streamlit
-- **Data Processing**: Pandas, NumPy
-- **Machine Learning**: Scikit-learn
-- **Visualization**: Plotly
-- **Clustering**: K-Means from Scikit-learn
-
-## Project Structure
-
-```
-├── app.py                         # Streamlit web application
-├── smart_loan_recovery_system.ipynb # Original analysis notebook
-├── loan-recovery.csv              # Dataset file
-├── requirements.txt               # Python dependencies
-├── README.md                      # This file
-├── LICENSE                        # License file
-└── .gitignore                     # Git ignore file
-```
-
-## Security Features
-
-- File path validation to prevent path traversal
-- Input validation for data access
-- File size limits to prevent resource exhaustion
-- Proper error handling
-- Data access controls
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/NewFeature`)
-3. Commit your changes (`git commit -m 'Add some New Feature'`)
-4. Push to the branch (`git push origin feature/NewFeature`)
-5. Open a Pull Request
-
-## License
+## 📄 License
 
 This project is available under the [MIT License](LICENSE).
-
-## Acknowledgments
-
-- The loan recovery dataset used in this project
-- Streamlit community for the excellent framework
-- Plotly for interactive visualization capabilities
