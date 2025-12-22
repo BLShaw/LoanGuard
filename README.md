@@ -80,18 +80,24 @@ loanguard/
 
 ### 1. Executive Dashboard
 Real-time overview of portfolio health, recovery rates, and exposure using Sunburst charts.
+<img width="1511" height="734" alt="image" src="https://github.com/user-attachments/assets/e3c4ed29-d4b7-4c6c-b1c7-9ba11b8a7f5b" />
 
 ### 2. Portfolio Management
 A filterable, high-density view of the loan book with "Borrower Journey" flow diagrams (Parallel Categories).
+<img width="1534" height="708" alt="image" src="https://github.com/user-attachments/assets/014e8974-624d-4952-81ef-549f903bd262" />
 
 ### 3. Risk Analysis Engine
 Deep dive into model performance, feature correlations, and statistical risk distribution.
+<img width="1494" height="879" alt="image" src="https://github.com/user-attachments/assets/4b29c2eb-980f-49a7-8faf-b8a1cec61d68" />
+
 
 ### 4. Customer 360
 A detailed single-borrower view featuring:
 *   **Risk Speedometer**: Gauge chart for instant risk assessment.
 *   **XAI Analysis**: "Why this Score?" chart showing top positive/negative factors.
 *   **Activity Log**: Dynamically generated history of interactions and payments.
+<img width="1533" height="487" alt="image" src="https://github.com/user-attachments/assets/dc44fc8c-2a9d-4b01-b42e-c4e368a182f0" />
+
 
 ## 🤝 Contributing
 
