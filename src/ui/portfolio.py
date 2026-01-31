@@ -24,7 +24,7 @@ def render(df):
         st.subheader("Borrower Journey Flow")
         st.markdown("Trace how Employment Type and Payment History impact Recovery Status.")
         
-        plot_df = df_filtered.sample(min(1000, len(df_filtered)))
+        plot_df = df_filtered.sample(min(1000, len(df_filtered)), random_state=42)
         
         fig_flow = px.parallel_categories(
             plot_df,

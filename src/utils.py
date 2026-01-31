@@ -15,9 +15,11 @@ def get_status_color(status):
     return 'red'
 
 def generate_borrower_history(data):
-    """
-    Procedurally generates a realistic activity log based on borrower attributes.
-    """
+    """Procedurally generates a realistic activity log based on borrower attributes."""
+    # Seed random based on borrower ID for reproducibility
+    borrower_seed = hash(data.get('Borrower_ID', 'default')) % (2**32)
+    random.seed(borrower_seed)
+    
     history = []
     today = datetime.now()
     
@@ -67,7 +69,7 @@ def generate_borrower_history(data):
 
     # 4. Collection Attempts based on Method
     attempts = int(data.get('Collection_Attempts', 0))
-    method = data.get('Collection_Method', 'Automated')
+    method = data.get('Collection_Method', 'None')
     
     for i in range(attempts):
         # Stagger attempts back in time
@@ -129,4 +131,6 @@ def generate_borrower_history(data):
         df_hist['DateObj'] = pd.to_datetime(df_hist['Date'])
         df_hist = df_hist.sort_values(by='DateObj', ascending=False).drop(columns=['DateObj'])
     
+    # Restore random state to avoid affecting other code
+    random.seed()
     return df_hist

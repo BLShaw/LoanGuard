@@ -138,3 +138,10 @@ Thumbs.db
 
 # Project Specific
 models/*.joblib
+
+# Debugging and Testing
+debug_log.py
+debug_logs/
+test_run.txt
+test_run_2.txt
+*.xlsx

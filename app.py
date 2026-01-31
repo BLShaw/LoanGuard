@@ -15,7 +15,10 @@ from src.features import FeatureEngineer
 from src.model import RiskModel, SegmentModel
 
 # UI Modules
-from src.ui import dashboard, portfolio, risk_engine, customer_360
+from src.ui import dashboard, portfolio, risk_engine, customer_360, what_if, analytics
+
+# Decision Intelligence
+from src.decision_log import get_logger
 
 # --- Configuration ---
 st.set_page_config(
@@ -66,6 +69,8 @@ def main():
     # Inference Pipeline
     X_inference = fe.preprocess_for_inference(df)
     df["Borrower_Segment"] = segment_model.predict(X_inference)
+    # NOTE: Cluster IDs are arbitrary. If model is retrained, verify these labels
+    # by analyzing cluster centroids (e.g., mean income, loan amount per cluster).
     segment_mapping = {
         0: "Moderate Income, High Burden",
         1: "High Income, Low Risk",
@@ -84,6 +89,18 @@ def main():
     df["Recovery_Strategy"] = df["Risk_Score"].apply(strategy_rule)
     df["Risk_Label"] = df["Risk_Score"].apply(lambda x: "High" if x > 0.5 else "Low")
 
+    # Log predictions (only on first load, not every rerun)
+    if 'predictions_logged' not in st.session_state:
+        logger = get_logger()
+        for _, row in df.head(10).iterrows():  # Sample to avoid log bloat
+            logger.log_prediction(
+                borrower_id=row['Borrower_ID'],
+                risk_score=row['Risk_Score'],
+                recommended_strategy=row['Recovery_Strategy'],
+                segment=row['Segment_Name']
+            )
+        st.session_state.predictions_logged = True
+
     # Sidebar Navigation
     with st.sidebar:
         st.title("🏦 LoanGuard")
@@ -94,7 +111,9 @@ def main():
             "Dashboard Overview", 
             "Portfolio Management",
             "Risk Analysis Engine",
-            "Customer 360"
+            "Customer 360",
+            "What-If Simulator",
+            "Analytics Hub"
         ])
         
         st.markdown("---")
@@ -111,6 +130,10 @@ def main():
         risk_engine.render(df)
     elif page == "Customer 360":
         customer_360.render(df, explainer, fe, X_inference)
+    elif page == "What-If Simulator":
+        what_if.render(df, risk_model, fe, explainer)
+    elif page == "Analytics Hub":
+        analytics.render(df, risk_model, fe)
 
 if __name__ == "__main__":
     main()

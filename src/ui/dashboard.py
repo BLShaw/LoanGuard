@@ -9,15 +9,15 @@ def render(df):
     # Top Level Metrics
     m1, m2, m3, m4 = st.columns(4)
     with m1:
-        st.metric("Total Portfolio Value", format_currency(df['Loan_Amount'].sum()), "1.2%")
+        st.metric("Total Portfolio Value", format_currency(df['Loan_Amount'].sum()))
     with m2:
         rec_rate = (df['Recovery_Status'] == 'Fully Recovered').mean() * 100
-        st.metric("Recovery Rate", format_percentage(rec_rate), "-0.5%", delta_color="inverse")
+        st.metric("Recovery Rate", format_percentage(rec_rate))
     with m3:
         high_risk_vol = df[df['Risk_Label'] == 'High']['Outstanding_Loan_Amount'].sum()
-        st.metric("At-Risk Amount", format_currency(high_risk_vol), "4.5%", delta_color="inverse")
+        st.metric("At-Risk Amount", format_currency(high_risk_vol))
     with m4:
-        st.metric("Active Borrowers", len(df), "+12")
+        st.metric("Active Borrowers", len(df))
 
     st.markdown("---")
 
@@ -53,7 +53,7 @@ def render(df):
                 "Fully Recovered": "#28a745",
                 "Partially Recovered": "#ffc107",
                 "Written Off": "#dc3545",
-                "(?)": "#dddddd"
+                "(?)": "#dddddd"  # Fallback for unmapped segments
             },
             title="Exposure by Segment & Status"
         )
