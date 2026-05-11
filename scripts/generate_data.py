@@ -186,6 +186,7 @@ if __name__ == '__main__':
     
     # Validate before saving
     if validate_correlations(df):
+        os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
         df.to_csv(OUTPUT_PATH, index=False)
         print(f"\n✅ Dataset saved to {OUTPUT_PATH}")
         print(f"   Shape: {df.shape}")

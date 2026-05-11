@@ -63,7 +63,24 @@ def main():
     df = load_and_process_data()
 
     if risk_model is None or df.empty:
-        st.error("System is initializing or data is missing. Please run the training script first.")
+        st.warning("System is initializing or data is missing. Models and data need to be generated.")
+        if st.button("Generate Data and Train Models"):
+            with st.spinner("Generating data and training models... This may take a moment."):
+                import subprocess
+                import sys
+                base_dir = os.path.dirname(os.path.abspath(__file__))
+                try:
+                    subprocess.run([sys.executable, os.path.join(base_dir, "scripts", "generate_data.py")], check=True)
+                    subprocess.run([sys.executable, os.path.join(base_dir, "scripts", "train_model.py")], check=True)
+                    st.cache_resource.clear()
+                    st.cache_data.clear()
+                    st.success("Data generated and models trained successfully! Reloading...")
+                    if hasattr(st, "rerun"):
+                        st.rerun()
+                    else:
+                        st.experimental_rerun()
+                except subprocess.CalledProcessError as e:
+                    st.error(f"An error occurred during generation: {e}")
         st.stop()
 
     # Inference Pipeline

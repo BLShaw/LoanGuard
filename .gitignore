@@ -145,3 +145,6 @@ debug_logs/
 test_run.txt
 test_run_2.txt
 *.xlsx
+
+# Data
+/data
