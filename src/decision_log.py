@@ -64,6 +64,7 @@ class DecisionLogger:
     
     def _append_log(self, filepath: str, entry: Dict) -> None:
         """Append a log entry to a JSONL file."""
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
         with open(filepath, 'a', encoding='utf-8') as f:
             f.write(json.dumps(entry) + '\n')
     

@@ -53,14 +53,15 @@ def generate_data():
     
     # Debt-to-Income ratio drives risk
     dti_ratio = data['Monthly_EMI'] / data['Monthly_Income']
+    capped_dti = np.clip(dti_ratio, 0, 1.0)
     
     # Generate a base risk score (0-1) that makes logical sense
     # High DTI → High risk, Low Income → High risk
     base_risk = np.clip(
-        0.3 + 
-        0.4 * dti_ratio +  # DTI increases risk
-        0.2 * (1 - (data['Monthly_Income'] - 3000) / 22000) +  # Low income increases risk
-        np.random.normal(0, 0.1, N_SAMPLES),  # Random noise
+        0.1 + 
+        0.4 * capped_dti +  # DTI increases risk
+        0.3 * (1 - (data['Monthly_Income'] - 3000) / 22000) +  # Low income increases risk
+        np.random.normal(0, 0.05, N_SAMPLES),  # Reduced random noise
         0.05, 0.95
     )
     
@@ -94,9 +95,9 @@ def generate_data():
     )
     
     # Outstanding amount depends on payment behavior
-    repayment_progress = np.clip(1 - base_risk + np.random.normal(0, 0.1, N_SAMPLES), 0.1, 0.9)
+    repayment_progress = np.clip(1 - base_risk + np.random.normal(0, 0.1, N_SAMPLES), 0.0, 1.0)
     data['Outstanding_Loan_Amount'] = np.round(
-        data['Loan_Amount'] * (1 - repayment_progress * 0.5),
+        data['Loan_Amount'] * (1 - repayment_progress),
         0
     ).astype(int)
     
@@ -121,8 +122,8 @@ def generate_data():
     # Recovery Status - THE TARGET VARIABLE
     # Directly driven by risk score
     data['Recovery_Status'] = np.where(
-        base_risk < 0.35, 'Fully Recovered',
-        np.where(base_risk < 0.70, 'Partially Recovered', 'Written Off')
+        base_risk < 0.40, 'Fully Recovered',
+        np.where(base_risk < 0.75, 'Partially Recovered', 'Written Off')
     )
     
     # Legal action for high risk cases
