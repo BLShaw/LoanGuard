@@ -121,7 +121,7 @@ def render_outcome_tracking(logger, df):
                 }
             )
             fig.update_layout(yaxis_tickformat='.0%')
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
     else:
         st.info("No outcomes recorded yet. Use the 'Record Outcome' feature in Customer 360 to start tracking.")
     
@@ -145,7 +145,7 @@ def render_outcome_tracking(logger, df):
         
         st.dataframe(
             strategy_df,
-            use_container_width=True,
+            width='stretch',
             hide_index=True,
             column_config={
                 'Recovery Rate': st.column_config.ProgressColumn(
@@ -198,8 +198,24 @@ def render_outcome_tracking(logger, df):
                 predicted_risk_score=borrower['Risk_Score'],
                 predicted_strategy=borrower['Recovery_Strategy'],
                 actual_outcome=actual_outcome,
+                outstanding_amount=float(borrower['Outstanding_Loan_Amount']),
                 actual_recovery_amount=recovery_amount if recovery_amount > 0 else None,
                 days_to_resolution=days_to_resolution
+            )
+            # Update the online optimizer immediately
+            success = 0.0
+            if actual_outcome == 'Fully Recovered':
+                success = 1.0
+            elif actual_outcome == 'Partially Recovered':
+                outstanding = float(borrower['Outstanding_Loan_Amount'])
+                success = (recovery_amount / outstanding) if outstanding > 0 else 0.5
+                success = min(1.0, max(0.0, success))
+            
+            optimizer.update(
+                action=borrower['Recovery_Strategy'],
+                success=success,
+                risk_score=borrower['Risk_Score'],
+                segment=borrower['Segment_Name']
             )
             st.success(f"✅ Outcome recorded for {borrower_id}")
             st.rerun()
@@ -236,7 +252,7 @@ def render_ab_testing(ab_framework, df):
                 for r in results.values()
             ])
             
-            st.dataframe(results_df, use_container_width=True, hide_index=True)
+            st.dataframe(results_df, width='stretch', hide_index=True)
             
             # Significance test
             significance = ab_framework.calculate_significance(active_test.test_id)
@@ -268,7 +284,7 @@ def render_ab_testing(ab_framework, df):
                     title="Recovery Rate by Strategy"
                 )
                 fig.update_layout(yaxis_tickformat='.0%')
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width='stretch')
         else:
             st.info("No outcomes recorded for this test yet.")
     else:
@@ -332,7 +348,7 @@ def render_optimizer_stats(optimizer):
             for action, data in stats.items()
         ])
         
-        st.dataframe(stats_df, use_container_width=True, hide_index=True)
+        st.dataframe(stats_df, width='stretch', hide_index=True)
         
         # Confidence interval visualization
         fig = go.Figure()
@@ -358,7 +374,7 @@ def render_optimizer_stats(optimizer):
             yaxis_tickformat='.0%',
             showlegend=False
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
         
         # Monte Carlo simulation
         st.markdown("---")
@@ -377,7 +393,7 @@ def render_optimizer_stats(optimizer):
             for action, data in simulation.items()
         ])
         
-        st.dataframe(sim_df, use_container_width=True, hide_index=True)
+        st.dataframe(sim_df, width='stretch', hide_index=True)
     else:
         st.info("The optimizer hasn't collected enough data yet. Record outcomes to train it.")
     
@@ -389,6 +405,7 @@ def render_optimizer_stats(optimizer):
     
     with col1:
         demo_risk = st.slider("Risk Score", 0.0, 1.0, 0.5, 0.05)
+        demo_balance = st.number_input("Outstanding Loan Amount ($)", min_value=0, value=15000, step=1000)
     
     with col2:
         demo_segment = st.selectbox("Segment", [
@@ -397,11 +414,16 @@ def render_optimizer_stats(optimizer):
             "Moderate Income, High Burden",
             "High Loan, High Risk"
         ])
+        demo_scra = st.checkbox("Active Military (SCRA protection)")
+        demo_bankruptcy = st.checkbox("Active Bankruptcy filing")
     
     if st.button("Get ML Recommendation"):
         recommendation = optimizer.recommend_action(
             risk_score=demo_risk,
+            outstanding_amount=float(demo_balance),
             segment=demo_segment,
+            is_scra_active=demo_scra,
+            is_bankrupt=demo_bankruptcy,
             explore=False  # Use pure exploitation for demo
         )
         
@@ -511,11 +533,11 @@ def render_causal_analysis(df):
         color_continuous_scale='RdBu_r',
         title="Feature Correlations with Risk Score"
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')
     
     st.dataframe(
         corr_df[['Feature', 'Interpretation']],
-        use_container_width=True,
+        width='stretch',
         hide_index=True
     )
 
@@ -567,7 +589,7 @@ def render_audit_trail(logger):
         
         st.dataframe(
             display_df.head(100),
-            use_container_width=True,
+            width='stretch',
             hide_index=True
         )
         

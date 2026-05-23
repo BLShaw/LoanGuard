@@ -13,8 +13,9 @@ def sample_data():
         'Monthly_Income': [5000, 8000, 12000],
         'Loan_Amount': [50000, 100000, 150000],
         'Loan_Tenure': [24, 36, 48],
+        'Months_On_Book': [10, 20, 30],
         'Interest_Rate': [10.0, 12.0, 15.0],
-        'Collateral_Value': [30000, 60000, 90000],
+        'Collateral_Value': [35000, 60000, 95000],
         'Outstanding_Loan_Amount': [40000, 80000, 120000],
         'Monthly_EMI': [2500, 3500, 4500],
         'Num_Missed_Payments': [0, 2, 5],
@@ -67,8 +68,9 @@ class TestFeatureEngineer:
     def test_numeric_features_list(self):
         fe = FeatureEngineer()
         expected = [
-            "Age", "Monthly_Income", "Loan_Amount", "Loan_Tenure",
+            "Monthly_Income", "Loan_Amount", "Loan_Tenure", "Months_On_Book",
             "Interest_Rate", "Collateral_Value", "Outstanding_Loan_Amount",
-            "Monthly_EMI", "Num_Missed_Payments", "Days_Past_Due"
+            "Monthly_EMI", "Num_Missed_Payments", "Days_Past_Due",
+            "Debt_to_Income_Ratio", "Loan_to_Value_Ratio"
         ]
         assert fe.numeric_features == expected

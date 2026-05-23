@@ -40,7 +40,7 @@ def render(df):
             barmode='stack'
         )
         fig_trend.update_layout(height=400)
-        st.plotly_chart(fig_trend, use_container_width=True)
+        st.plotly_chart(fig_trend, width='stretch')
         
     with c2:
         st.subheader("Portfolio Composition")
@@ -58,4 +58,4 @@ def render(df):
             title="Exposure by Segment & Status"
         )
         fig_sun.update_layout(height=400)
-        st.plotly_chart(fig_sun, use_container_width=True)
+        st.plotly_chart(fig_sun, width='stretch')

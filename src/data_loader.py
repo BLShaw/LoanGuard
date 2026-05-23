@@ -15,9 +15,17 @@ def load_data(file_path):
 
 def clean_data(df):
     """Performs basic data cleaning."""
-    nan_count = df.isna().sum().sum()
-    if nan_count > 0:
-        warnings.warn(f"Data contains {nan_count} NaN values, filling with column means")
+    df = df.copy()
     
-    df = df.fillna(df.mean(numeric_only=True))
+    # Fill numeric columns with column means, and warn only if numeric columns contain NaNs
+    numeric_cols = df.select_dtypes(include=['number']).columns
+    numeric_nan_count = df[numeric_cols].isna().sum().sum()
+    if numeric_nan_count > 0:
+        warnings.warn(f"Data contains {numeric_nan_count} numeric NaN values, filling with column means")
+        df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].mean())
+    
+    # Fill non-numeric columns with 'None'
+    object_cols = df.select_dtypes(exclude=['number']).columns
+    df[object_cols] = df[object_cols].fillna('None')
+    
     return df

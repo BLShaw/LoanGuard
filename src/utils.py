@@ -12,6 +12,7 @@ def format_percentage(value):
 def get_status_color(status):
     if status == 'Fully Recovered': return 'green'
     if status == 'Partially Recovered': return 'orange'
+    if status == 'Pending Resolution': return 'blue'
     return 'red'
 
 def generate_borrower_history(data):

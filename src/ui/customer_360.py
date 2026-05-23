@@ -39,6 +39,11 @@ def render(df, explainer, fe, X_inference):
             st.write(f"**Outstanding:** {format_currency(cust['Outstanding_Loan_Amount'])}")
             st.write(f"**Monthly EMI:** {format_currency(cust['Monthly_EMI'])}")
             
+            dti = (cust['Monthly_EMI'] / cust['Monthly_Income']) * 100 if cust['Monthly_Income'] > 0 else 0
+            ltv = (cust['Outstanding_Loan_Amount'] / cust['Collateral_Value']) * 100 if cust['Collateral_Value'] > 0 else 0
+            st.write(f"**DTI (Debt-to-Income):** {dti:.1f}%")
+            st.write(f"**LTV (Loan-to-Value):** {ltv:.1f}%")
+            
         with col2:
             st.markdown("#### ⚠️ Risk Profile")
             
@@ -64,10 +69,24 @@ def render(df, explainer, fe, X_inference):
                 }
             ))
             fig_gauge.update_layout(height=250, margin=dict(l=10, r=10, t=50, b=10))
-            st.plotly_chart(fig_gauge, use_container_width=True)
+            st.plotly_chart(fig_gauge, width='stretch')
             
             st.write(f"**Segment:** {cust['Segment_Name']}")
+            
+            # Mock Credit Bureau Score (e.g. FICO 300-850)
+            bureau_score = int(850 - (cust['Risk_Score'] * (850 - 300)))
+            np.random.seed(hash(selected_id) % (2**32))
+            bureau_score = max(300, min(850, bureau_score + np.random.randint(-40, 40)))
+            np.random.seed() # reset
+            
+            st.write(f"**Ext. Bureau Score:** {bureau_score}")
+            st.write(f"**Months On Book (MOB):** {int(cust['Months_On_Book'])}")
+            st.write(f"**Days Past Due (DPD):** {int(cust['Days_Past_Due'])}")
             st.write(f"**Missed Payments:** {int(cust['Num_Missed_Payments'])}")
+            
+            # Compliance Flags
+            st.write(f"**SCRA Status:** :red[Active Duty 🎖️]" if cust.get('Is_SCRA', False) else "**SCRA Status:** Civilian")
+            st.write(f"**Bankruptcy Status:** :red[Active Case ⚖️]" if cust.get('Is_Bankrupt', False) else "**Bankruptcy Status:** Clear")
             
             # SHAP Analysis
             if explainer:
@@ -108,7 +127,7 @@ def render(df, explainer, fe, X_inference):
                     )
                     fig_shap.update_traces(marker_color=shap_df['Color'])
                     fig_shap.update_layout(height=300, showlegend=False)
-                    st.plotly_chart(fig_shap, use_container_width=True)
+                    st.plotly_chart(fig_shap, width='stretch')
                     
                 except Exception as e:
                     st.error(f"Could not generate explanation: {e}")
@@ -127,7 +146,7 @@ def render(df, explainer, fe, X_inference):
         
         st.dataframe(
             activity_data, 
-            use_container_width=True, 
+            width='stretch', 
             hide_index=True,
             column_config={
                 "Date": st.column_config.TextColumn("Date", width="medium"),

@@ -16,7 +16,7 @@ def render(df):
         color_continuous_scale="RdBu_r",
         title="Feature Correlation Heatmap"
     )
-    st.plotly_chart(fig_corr, use_container_width=True)
+    st.plotly_chart(fig_corr, width='stretch')
     
     r1, r2 = st.columns([1, 1])
     
@@ -36,7 +36,7 @@ def render(df):
             marginal="box"
         )
         fig_risk_dist.update_layout(height=400)
-        st.plotly_chart(fig_risk_dist, use_container_width=True)
+        st.plotly_chart(fig_risk_dist, width='stretch')
 
     with r2:
         st.subheader("Income vs Risk Clusters")
@@ -51,4 +51,4 @@ def render(df):
             color_continuous_scale="RdYlGn_r"
         )
         fig_seg.update_layout(height=400)
-        st.plotly_chart(fig_seg, use_container_width=True)
+        st.plotly_chart(fig_seg, width='stretch')

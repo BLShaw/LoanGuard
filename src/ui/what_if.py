@@ -118,6 +118,7 @@ def render(df, risk_model, fe, explainer):
         'Monthly_Income': sim_income,
         'Loan_Amount': baseline['Loan_Amount'],
         'Loan_Tenure': baseline['Loan_Tenure'],
+        'Months_On_Book': baseline['Months_On_Book'],
         'Interest_Rate': baseline['Interest_Rate'],
         'Collateral_Value': sim_collateral,
         'Outstanding_Loan_Amount': sim_outstanding,
@@ -127,8 +128,7 @@ def render(df, risk_model, fe, explainer):
     }
     
     sim_df = pd.DataFrame([sim_data])
-    sim_scaled = fe.scaler.transform(sim_df[fe.numeric_features])
-    sim_X = pd.DataFrame(sim_scaled, columns=fe.numeric_features)
+    sim_X = fe.preprocess_for_inference(sim_df)
     
     # Get predictions with confidence intervals
     sim_proba = risk_model.predict_proba(sim_X)
@@ -144,16 +144,22 @@ def render(df, risk_model, fe, explainer):
         has_ci = False
         sim_ci_lower = sim_ci_upper = None
     
-    # Strategy mapping
-    def get_strategy(score):
-        if score > 0.75:
-            return "Legal Action"
-        elif score > 0.50:
-            return "Settlement Offer"
-        else:
-            return "Standard Monitoring"
-    
-    sim_strategy = get_strategy(sim_risk_score)
+    # Strategy mapping using the optimizer (single source of truth)
+    if sim_outstanding == 0 or (baseline['Recovery_Status'] == 'Fully Recovered' and sim_dpd == 0 and sim_missed == 0):
+        sim_strategy = "No Action Required"
+    else:
+        from src.optimizer import get_optimizer
+        optimizer = get_optimizer()
+        rec = optimizer.recommend_action(
+            risk_score=sim_risk_score,
+            outstanding_amount=float(sim_outstanding),
+            segment=baseline['Segment_Name'],
+            is_scra_active=bool(baseline.get('Is_SCRA', False)),
+            is_bankrupt=bool(baseline.get('Is_Bankrupt', False)),
+            explore=False
+        )
+        sim_strategy = rec.action
+        
     original_strategy = baseline['Recovery_Strategy']
     
     # Log the simulation
@@ -251,7 +257,7 @@ def render(df, risk_model, fe, explainer):
     ))
     
     fig.update_layout(height=300, margin=dict(l=20, r=20, t=40, b=20))
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')
     
     # --- Factor Changes Table ---
     st.markdown("---")
@@ -278,7 +284,7 @@ def render(df, risk_model, fe, explainer):
             })
     
     if changes:
-        st.dataframe(pd.DataFrame(changes), use_container_width=True, hide_index=True)
+        st.dataframe(pd.DataFrame(changes), width='stretch', hide_index=True)
     else:
         st.info("No parameters have been modified from baseline.")
     
@@ -318,7 +324,7 @@ def render(df, risk_model, fe, explainer):
             )
             fig_shap.update_traces(marker_color=shap_df['Color'])
             fig_shap.update_layout(height=300, showlegend=False)
-            st.plotly_chart(fig_shap, use_container_width=True)
+            st.plotly_chart(fig_shap, width='stretch')
             
             st.caption("🔴 Red = increases risk | 🟢 Green = decreases risk")
             

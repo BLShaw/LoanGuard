@@ -56,54 +56,91 @@ def load_and_process_data():
     except Exception:
         return pd.DataFrame()
 
+def check_and_initialize_system():
+    """Ensure data is generated and models are trained on first run."""
+    import os
+    
+    # 1. Check if dataset exists
+    if not os.path.exists(DATA_PATH):
+        with st.spinner("First-time setup: Generating synthetic loan recovery dataset..."):
+            try:
+                from scripts.generate_data import generate_data
+                df = generate_data()
+                os.makedirs(os.path.dirname(DATA_PATH), exist_ok=True)
+                df.to_csv(DATA_PATH, index=False)
+                st.success("Dataset generated successfully!")
+            except Exception as e:
+                st.error(f"Failed to generate dataset: {str(e)}")
+                st.stop()
+                
+    # 2. Check if models exist
+    if not os.path.exists(RISK_MODEL_PATH) or not os.path.exists(SEGMENT_MODEL_PATH) or not os.path.exists(SCALER_PATH):
+        with st.spinner("First-time setup: Training risk and segmentation models..."):
+            try:
+                from scripts.train_model import main as train_main
+                train_main()
+                st.success("Models trained and saved successfully!")
+            except SystemExit as se:
+                if se.code != 0:
+                    st.error("Model promotion gate failed! Model test AUC was below 0.70.")
+                    st.stop()
+            except Exception as e:
+                st.error(f"Failed to train models: {str(e)}")
+                st.stop()
+
 # --- Main App Logic ---
 def main():
+    # Ensure system files and models are initialized
+    check_and_initialize_system()
+    
     # Load Resources
     risk_model, segment_model, fe, explainer = load_system()
     df = load_and_process_data()
 
     if risk_model is None or df.empty:
-        st.warning("System is initializing or data is missing. Models and data need to be generated.")
-        if st.button("Generate Data and Train Models"):
-            with st.spinner("Generating data and training models... This may take a moment."):
-                import subprocess
-                import sys
-                base_dir = os.path.dirname(os.path.abspath(__file__))
-                try:
-                    subprocess.run([sys.executable, os.path.join(base_dir, "scripts", "generate_data.py")], check=True)
-                    subprocess.run([sys.executable, os.path.join(base_dir, "scripts", "train_model.py")], check=True)
-                    st.cache_resource.clear()
-                    st.cache_data.clear()
-                    st.success("Data generated and models trained successfully! Reloading...")
-                    if hasattr(st, "rerun"):
-                        st.rerun()
-                    else:
-                        st.experimental_rerun()
-                except subprocess.CalledProcessError as e:
-                    st.error(f"An error occurred during generation: {e}")
+        st.error("Critical Error: Unable to load system resources. Please check your logs.")
         st.stop()
 
     # Inference Pipeline
     X_inference = fe.preprocess_for_inference(df)
     df["Borrower_Segment"] = segment_model.predict(X_inference)
-    # NOTE: Cluster IDs are arbitrary. If model is retrained, verify these labels
-    # by analyzing cluster centroids (e.g., mean income, loan amount per cluster).
-    segment_mapping = {
-        0: "Moderate Income, High Burden",
-        1: "High Income, Low Risk",
-        2: "Moderate Income, Medium Risk",
-        3: "High Loan, High Risk",
-    }
+    import json
+    segment_mapping_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models", "segment_mapping.json")
+    try:
+        with open(segment_mapping_path, "r") as f:
+            segment_mapping = {int(k): v for k, v in json.load(f).items()}
+    except FileNotFoundError:
+        segment_mapping = {0: "Segment A", 1: "Segment B", 2: "Segment C", 3: "Segment D"}
     df["Segment_Name"] = df["Borrower_Segment"].map(segment_mapping)
     risk_probs = risk_model.predict_proba(X_inference)
     df["Risk_Score"] = risk_probs[:, 1]
     
-    def strategy_rule(score):
-        if score > 0.75: return "Legal Action"
-        elif score > 0.50: return "Settlement Offer"
-        else: return "Standard Monitoring"
-        
-    df["Recovery_Strategy"] = df["Risk_Score"].apply(strategy_rule)
+    from src.optimizer import get_optimizer
+    optimizer = get_optimizer()
+    # Generate compliance attributes (deterministic based on borrower ID)
+    scra_flags = []
+    bankruptcy_flags = []
+    import random
+    for bid in df['Borrower_ID']:
+        borrower_seed = hash(bid) % (2**32)
+        rng = random.Random(borrower_seed)
+        scra_flags.append(rng.random() < 0.05)       # 5% active duty military
+        bankruptcy_flags.append(rng.random() < 0.03)  # 3% active bankruptcy
+    df["Is_SCRA"] = scra_flags
+    df["Is_Bankrupt"] = bankruptcy_flags
+
+    strategies = []
+    for score, segment, balance, scra, bankrupt, status in zip(
+        df["Risk_Score"], df["Segment_Name"], df["Outstanding_Loan_Amount"], df["Is_SCRA"], df["Is_Bankrupt"], df["Recovery_Status"]
+    ):
+        if status == "Fully Recovered":
+            strategies.append("No Action Required")
+        else:
+            rec = optimizer.recommend_action(
+                score, float(balance), segment, is_scra_active=scra, is_bankrupt=bankrupt, explore=False
+            )
+            strategies.append(rec.action)
+    df["Recovery_Strategy"] = strategies
     df["Risk_Label"] = df["Risk_Score"].apply(lambda x: "High" if x > 0.5 else "Low")
 
     # Log predictions (only on first load, not every rerun)

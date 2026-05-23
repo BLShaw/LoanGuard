@@ -34,7 +34,7 @@ def render(df):
             labels={'Employment_Type': 'Employment', 'Payment_History': 'History', 'Recovery_Status': 'Status'}
         )
         fig_flow.update_layout(height=500)
-        st.plotly_chart(fig_flow, use_container_width=True)
+        st.plotly_chart(fig_flow, width='stretch')
 
     # Detailed Register
     st.subheader("Detailed Loan Register")
@@ -56,7 +56,7 @@ def render(df):
             "Outstanding_Loan_Amount": st.column_config.NumberColumn(format="$%d"),
             "Recovery_Status": st.column_config.TextColumn("Status"),
         },
-        use_container_width=True,
+        width='stretch',
         hide_index=True,
         height=500
     )

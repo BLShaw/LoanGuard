@@ -36,7 +36,7 @@ class TestContextualBandit:
             bandit.update("Legal Action", success=True, risk_score=0.8)
             bandit.update("Standard Monitoring", success=False, risk_score=0.8)
         
-        rec = bandit.recommend_action(risk_score=0.8, explore=False)
+        rec = bandit.recommend_action(risk_score=0.8, outstanding_amount=100000.0, explore=False)
         assert rec.action == "Legal Action"
     
     def test_update_changes_parameters(self):

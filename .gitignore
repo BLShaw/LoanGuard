@@ -137,7 +137,8 @@ ehthumbs.db
 Thumbs.db
 
 # Project Specific
-models/*.joblib
+models/
+*.joblib
 
 # Debugging and Testing
 debug_log.py
@@ -146,5 +147,10 @@ test_run.txt
 test_run_2.txt
 *.xlsx
 
-# Data
-/data
+# Data and Logs
+data/
+
+# Environments and Secrets
+.env
+.env.*
+!.env.example

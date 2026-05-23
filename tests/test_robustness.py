@@ -19,6 +19,7 @@ class TestRobustness:
             'Monthly_Income': [1e15, -500, np.inf, -np.inf],
             'Loan_Amount': [0, 1e20, np.nan, 5000],
             'Loan_Tenure': [1000, -10, 0, 12],
+            'Months_On_Book': [100, -5, 0, 6],
             'Interest_Rate': [100.0, 0.0, -5.0, 5000.0],
             'Collateral_Value': [1e20, -1e10, 0, np.nan],
             'Outstanding_Loan_Amount': [1e20, -1e10, 0, 5000],
@@ -91,7 +92,7 @@ class TestRobustness:
     def test_loading_empty_dataframe(self):
         """Test pipeline with empty dataframe."""
         empty_df = pd.DataFrame(columns=[
-            'Age', 'Monthly_Income', 'Loan_Amount', 'Loan_Tenure',
+            'Age', 'Monthly_Income', 'Loan_Amount', 'Loan_Tenure', 'Months_On_Book',
             'Interest_Rate', 'Collateral_Value', 'Outstanding_Loan_Amount', 
             'Monthly_EMI', 'Num_Missed_Payments', 'Days_Past_Due', 'Recovery_Status'
         ])

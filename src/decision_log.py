@@ -183,6 +183,7 @@ class DecisionLogger:
         predicted_risk_score: float,
         predicted_strategy: str,
         actual_outcome: str,
+        outstanding_amount: float = 1000.0,
         actual_recovery_amount: float = None,
         days_to_resolution: int = None,
         user_id: str = None
@@ -197,6 +198,7 @@ class DecisionLogger:
                 'predicted_risk_score': round(float(predicted_risk_score), 4),
                 'predicted_strategy': predicted_strategy,
                 'actual_outcome': actual_outcome,
+                'outstanding_amount': float(outstanding_amount),
                 'actual_recovery_amount': actual_recovery_amount,
                 'days_to_resolution': int(days_to_resolution) if days_to_resolution is not None else None,
                 # Compute if prediction was correct

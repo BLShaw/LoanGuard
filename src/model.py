@@ -58,9 +58,12 @@ class RiskModel:
         Returns:
             Tuple of (mean_proba, lower_bound, upper_bound)
         """
+        # Convert X to numpy array if it is a pandas DataFrame to avoid feature names warning from individual trees
+        X_arr = X.values if hasattr(X, 'values') else np.asarray(X)
+        
         # Get predictions from each tree
         tree_predictions = np.array([
-            tree.predict_proba(X)[:, 1] for tree in self.model.estimators_
+            tree.predict_proba(X_arr)[:, 1] for tree in self.model.estimators_
         ])  # Shape: (n_trees, n_samples)
         
         # Calculate mean and std across trees
@@ -91,8 +94,9 @@ class RiskModel:
         Get prediction variance for uncertainty quantification.
         Higher variance indicates less confident predictions.
         """
+        X_arr = X.values if hasattr(X, 'values') else np.asarray(X)
         tree_predictions = np.array([
-            tree.predict_proba(X)[:, 1] for tree in self.model.estimators_
+            tree.predict_proba(X_arr)[:, 1] for tree in self.model.estimators_
         ])
         return tree_predictions.var(axis=0)
 
