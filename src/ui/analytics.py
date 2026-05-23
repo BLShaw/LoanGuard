@@ -41,7 +41,7 @@ def render(df, risk_model=None, fe=None):
     ])
     
     with tab1:
-        render_outcome_tracking(logger, df)
+        render_outcome_tracking(logger, df, optimizer)
     
     with tab2:
         render_ab_testing(ab_framework, df)
@@ -56,7 +56,7 @@ def render(df, risk_model=None, fe=None):
         render_audit_trail(logger)
 
 
-def render_outcome_tracking(logger, df):
+def render_outcome_tracking(logger, df, optimizer):
     """Render outcome tracking section."""
     st.subheader("Model Performance Tracking")
     

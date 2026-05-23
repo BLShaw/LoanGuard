@@ -112,6 +112,21 @@ def render(df, risk_model, fe, explainer):
             help="Monthly installment amount"
         )
     
+    # --- Enforce Business & Logical Constraints ---
+    # 1. Missed payments cannot exceed Months on Book
+    max_possible_missed = int(baseline['Months_On_Book'])
+    if sim_missed > max_possible_missed:
+        sim_missed = max_possible_missed
+        st.info(f"ℹ️ Note: Missed Payments capped at {max_possible_missed} (Months on Book).")
+        
+    # 2. Consistent relationship between Missed Payments and Days Past Due (DPD)
+    if sim_missed == 0 and sim_dpd > 0:
+        sim_dpd = 0
+        st.info("ℹ️ Note: Days Past Due reset to 0 because Missed Payments is 0.")
+    elif sim_missed > 0 and sim_dpd == 0:
+        sim_dpd = sim_missed * 30  # Default to ~30 days past due per missed payment
+        st.info(f"ℹ️ Note: Days Past Due set to {sim_dpd} because Missed Payments is {sim_missed}.")
+
     # --- Build Simulated Feature Vector ---
     sim_data = {
         'Age': baseline['Age'],

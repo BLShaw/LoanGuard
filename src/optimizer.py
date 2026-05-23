@@ -316,6 +316,9 @@ class ContextualBandit:
             risk_score: The borrower's risk score (for context)
             segment: The borrower's segment (for context)
         """
+        if action not in self._global_params:
+            return
+            
         # Convert boolean success to float
         if isinstance(success, bool):
             success = 1.0 if success else 0.0
